@@ -1410,20 +1410,32 @@ img { max-width: 100%; display: block; }
     align-items: center;
 }
 
-.polo-canvas-svg {
+.polo-mockup-container {
+    position: relative;
     width: 100%;
-    height: auto;
+    max-width: 380px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
     z-index: 1;
-    filter: drop-shadow(0 15px 35px rgba(0,0,0,0.45));
 }
 
-/* Printable chest box overlay */
+.polo-mockup-img-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 0% 50%; /* Muestra el frente por defecto */
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), object-position 0.25s ease-in-out;
+    filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.35));
+}
+
+/* Printable box overlay */
 .printable-area-box {
     position: absolute;
-    top: 32%;
-    left: 37.5%;
-    width: 25%;
-    height: 26%;
     border: 1.5px dashed rgba(88, 164, 205, 0.4);
     border-radius: 4px;
     display: flex;
@@ -1431,7 +1443,21 @@ img { max-width: 100%; display: block; }
     justify-content: center;
     z-index: 2;
     pointer-events: none;
-    transition: border-color var(--transition-fast);
+    transition: all 0.3s ease;
+}
+
+.printable-area-box.view-front {
+    top: 25%;
+    left: 36%;
+    width: 28%;
+    height: 33%;
+}
+
+.printable-area-box.view-back {
+    top: 20%;
+    left: 32%;
+    width: 36%;
+    height: 38%;
 }
 
 .personalizer-viewer:hover .printable-area-box {

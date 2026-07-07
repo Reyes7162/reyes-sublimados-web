@@ -258,46 +258,14 @@
                 <!-- Columna Izquierda: Visor del Polo -->
                 <div class="personalizer-viewer-wrap reveal">
                     <div class="personalizer-viewer" id="polo-preview-area">
-                        <!-- SVG del Polo Profesional -->
-                        <svg id="polo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" class="polo-canvas-svg">
-                            <defs>
-                                <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
-                                    <stop offset="0%" stop-color="rgba(0,0,0,0.35)" />
-                                    <stop offset="100%" stop-color="rgba(0,0,0,0)" />
-                                </radialGradient>
-                            </defs>
-                            <!-- Sombra de suelo -->
-                            <ellipse cx="250" cy="465" rx="140" ry="12" fill="url(#shadow)" />
-                            
-                            <!-- Cuerpo del Polo -->
-                            <path id="polo-body" d="M130,80 L180,80 C180,80 190,110 250,110 C310,110 320,80 320,80 L370,80 L430,145 L375,190 L370,420 C370,430 360,440 350,440 L150,440 C140,440 130,430 130,420 L125,190 L70,145 Z" fill="#ffffff" stroke="#0d2137" stroke-width="5" stroke-linejoin="round" />
-                            
-                            <!-- Manga Izquierda Detalles -->
-                            <path d="M127,190 L70,145 L102,108 L129,135" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3" />
-                            <!-- Manga Derecha Detalles -->
-                            <path d="M373,190 L430,145 L398,108 L371,135" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3" />
-                            
-                            <!-- Interior del cuello (Sombra) -->
-                            <path id="polo-neck-inner" d="M180,80 C180,80 190,110 250,110 C310,110 320,80 320,80 C320,80 295,73 250,73 C205,73 180,80 180,80 Z" fill="rgba(0,0,0,0.15)" stroke="#0d2137" stroke-width="4" />
-                            
-                            <!-- Cuello Izquierdo -->
-                            <path id="collar-left" d="M180,80 L235,130 L250,110 C210,110 180,80 180,80 Z" fill="#ffffff" stroke="#0d2137" stroke-width="4" />
-                            <!-- Cuello Derecho -->
-                            <path id="collar-right" d="M320,80 L265,130 L250,110 C290,110 320,80 320,80 Z" fill="#ffffff" stroke="#0d2137" stroke-width="4" />
-                            
-                            <!-- Tapeta y botones -->
-                            <path id="polo-placket" d="M242,110 L242,175 L258,175 L258,110 Z" fill="#f8f9fa" stroke="#0d2137" stroke-width="3" />
-                            <circle cx="250" cy="126" r="3" fill="#121212" />
-                            <circle cx="250" cy="150" r="3" fill="#121212" />
-                            
-                            <!-- Sombra de costuras laterales -->
-                            <path d="M130,210 C138,280 138,360 148,420" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="4" />
-                            <path d="M370,210 C362,280 362,360 352,420" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="4" />
-                        </svg>
+                        <!-- Contenedor de la Imagen Realista del Polo -->
+                        <div class="polo-mockup-container">
+                            <img src="assets/polo_template.png" id="polo-mockup-img" alt="Polo Realista" class="polo-mockup-img-element">
+                        </div>
 
-                        <!-- Contenedor del área imprimible (Pecho) -->
-                        <div class="printable-area-box">
-                            <span class="printable-label">Área de estampado</span>
+                        <!-- Contenedor del área imprimible -->
+                        <div class="printable-area-box view-front" id="printable-area">
+                            <span class="printable-label" id="printable-label-text">Frente (Pecho)</span>
                             <!-- Capa interactiva donde va el diseño -->
                             <div class="design-layer" id="design-canvas-layer">
                                 <img src="" id="user-design-img" alt="Tu diseño" style="display: none;">
@@ -331,6 +299,19 @@
                             <button class="swatch" data-color="#a61c1c" style="background-color: #a61c1c;" title="Rojo"></button>
                             <button class="swatch" data-color="#194c33" style="background-color: #194c33;" title="Verde"></button>
                             <button class="swatch" data-color="#7f8c8d" style="background-color: #7f8c8d;" title="Gris"></button>
+                        </div>
+                    </div>
+
+                    <!-- 2.5. Selección de Vista (Frente / Espalda) -->
+                    <div class="control-group">
+                        <label class="control-label">2.5. Elige la vista del polo</label>
+                        <div class="control-tabs">
+                            <button type="button" class="tab-btn active" id="btn-view-front" onclick="changePoloView('front')">
+                                <i class='bx bx-show'></i> Adelante (Pecho)
+                            </button>
+                            <button type="button" class="tab-btn" id="btn-view-back" onclick="changePoloView('back')">
+                                <i class='bx bx-show'></i> Atrás (Espalda)
+                            </button>
                         </div>
                     </div>
 

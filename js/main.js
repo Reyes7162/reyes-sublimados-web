@@ -290,7 +290,8 @@ function handleQuoteSubmit(event) {
 // ─── INTERACTIVE POLO CUSTOMIZER (PROBADOR) ───
 let customizerState = {
     type: 'jersey',       // 'jersey' | 'algodon'
-    color: '#ffffff',     // Color de fondo del polo
+    color: '#ffffff',     // Color hexadecimal
+    view: 'front',        // 'front' | 'back'
     designSrc: '',        // Imagen del diseño
     scale: 60,            // %
     x: 0,                 // px
@@ -298,6 +299,18 @@ let customizerState = {
     rotate: 0,            // deg
     designName: ''        // Nombre de la plantilla o imagen subida
 };
+
+// Generar filtros CSS para colorear de manera realista la camiseta blanca
+function getCSSFilterForColor(hex) {
+    const key = hex.toLowerCase();
+    if (key === '#ffffff') return 'none';
+    if (key === '#121212') return 'brightness(0.16) contrast(1.15)';
+    if (key === '#0e2f56') return 'sepia(1) saturate(4.5) hue-rotate(190deg) brightness(0.4) contrast(1.1)';
+    if (key === '#a61c1c') return 'sepia(1) saturate(7.5) hue-rotate(335deg) brightness(0.6) contrast(1.15)';
+    if (key === '#194c33') return 'sepia(1) saturate(5.5) hue-rotate(85deg) brightness(0.45) contrast(1.1)';
+    if (key === '#7f8c8d') return 'sepia(0.5) saturate(0) brightness(0.7) contrast(1.0)'; // Gris
+    return 'none';
+}
 
 function changePoloType(type) {
     customizerState.type = type;
@@ -307,17 +320,13 @@ function changePoloType(type) {
     document.getElementById('tab-algodon').classList.toggle('active', type === 'algodon');
     
     const colorGroup = document.getElementById('color-selector-group');
-    const poloBody = document.getElementById('polo-body');
-    const collarLeft = document.getElementById('collar-left');
-    const collarRight = document.getElementById('collar-right');
+    const poloMockupImg = document.getElementById('polo-mockup-img');
 
     if (type === 'jersey') {
         // Jersey Spun sólo blanco
         colorGroup.style.display = 'none';
         customizerState.color = '#ffffff';
-        poloBody.setAttribute('fill', '#ffffff');
-        collarLeft.setAttribute('fill', '#ffffff');
-        collarRight.setAttribute('fill', '#ffffff');
+        if (poloMockupImg) poloMockupImg.style.filter = 'none';
     } else {
         // 100% Algodón permite colores
         colorGroup.style.display = 'flex';
@@ -326,14 +335,12 @@ function changePoloType(type) {
         if (activeSwatch) {
             const activeColor = activeSwatch.dataset.color;
             customizerState.color = activeColor;
-            poloBody.setAttribute('fill', activeColor);
-            collarLeft.setAttribute('fill', activeColor);
-            collarRight.setAttribute('fill', activeColor);
+            if (poloMockupImg) poloMockupImg.style.filter = getCSSFilterForColor(activeColor);
         }
     }
 }
 
-// Configurar swatches
+// Configurar swatches de colores
 document.querySelectorAll('.swatch').forEach(swatch => {
     swatch.addEventListener('click', () => {
         document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
@@ -342,15 +349,43 @@ document.querySelectorAll('.swatch').forEach(swatch => {
         const color = swatch.dataset.color;
         customizerState.color = color;
         
-        const poloBody = document.getElementById('polo-body');
-        const collarLeft = document.getElementById('collar-left');
-        const collarRight = document.getElementById('collar-right');
-        
-        poloBody.setAttribute('fill', color);
-        collarLeft.setAttribute('fill', color);
-        collarRight.setAttribute('fill', color);
+        const poloMockupImg = document.getElementById('polo-mockup-img');
+        if (poloMockupImg) {
+            poloMockupImg.style.filter = getCSSFilterForColor(color);
+        }
     });
 });
+
+// Función para alternar entre vista frontal y trasera
+function changePoloView(view) {
+    customizerState.view = view;
+    
+    // Alternar clases activas de los botones de vista
+    document.getElementById('btn-view-front').classList.toggle('active', view === 'front');
+    document.getElementById('btn-view-back').classList.toggle('active', view === 'back');
+    
+    const poloMockupImg = document.getElementById('polo-mockup-img');
+    const printableArea = document.getElementById('printable-area');
+    const labelText = document.getElementById('printable-label-text');
+    
+    if (view === 'front') {
+        if (poloMockupImg) poloMockupImg.style.objectPosition = '0% 50%';
+        if (printableArea) {
+            printableArea.className = 'printable-area-box view-front';
+        }
+        if (labelText) labelText.textContent = 'Frente (Pecho)';
+    } else {
+        if (poloMockupImg) poloMockupImg.style.objectPosition = '100% 50%';
+        if (printableArea) {
+            printableArea.className = 'printable-area-box view-back';
+        }
+        if (labelText) labelText.textContent = 'Espalda';
+    }
+    
+    // Reiniciamos los offsets para evitar que el diseño quede mal posicionado
+    resetAdjustments();
+    updateDesignLayout();
+}
 
 function toggleDesignTab(tab) {
     const uploadTab = document.querySelectorAll('.design-tab')[0];
@@ -554,12 +589,13 @@ function applyCustomToQuote() {
     
     // Rellenar campo oculto de personalización
     const colorTxt = customizerState.type === 'jersey' ? 'Blanco' : getFriendlyColorName(customizerState.color);
-    const summaryStr = `Tipo: ${customizerState.type === 'jersey' ? 'Jersey Spun' : '100% Algodón'}, Color: ${colorTxt}, Diseño: ${customizerState.designName || 'Lienzo vacío'}`;
+    const viewTxt = customizerState.view === 'front' ? 'Adelante (Pecho)' : 'Atrás (Espalda)';
+    const summaryStr = `Tipo: ${customizerState.type === 'jersey' ? 'Jersey Spun' : '100% Algodón'}, Color: ${colorTxt}, Vista: ${viewTxt}, Diseño: ${customizerState.designName || 'Lienzo vacío'}`;
     
     document.getElementById('custom-design-data').value = summaryStr;
     
     // Mensaje descriptivo
-    descTextarea.value = `¡Polo personalizado diseñado en la web!\n• Tela: ${customizerState.type === 'jersey' ? 'Jersey Spun (Blanco)' : '100% Algodón'}\n• Color del polo: ${colorTxt}\n• Diseño: ${customizerState.designName || 'Por favor, comuníquese para pasar la imagen.'}`;
+    descTextarea.value = `¡Polo personalizado diseñado en la web!\n• Tela: ${customizerState.type === 'jersey' ? 'Jersey Spun (Blanco)' : '100% Algodón'}\n• Color del polo: ${colorTxt}\n• Estampado en: ${viewTxt}\n• Diseño: ${customizerState.designName || 'Por favor, comuníquese para pasar la imagen.'}`;
     
     actualizarCalculadora();
     
@@ -617,91 +653,96 @@ function downloadCustomMockup() {
     
     ctx.clearRect(0, 0, 800, 800);
     
-    // 1. Dibujar el fondo del color del polo seleccionado
-    ctx.fillStyle = customizerState.color;
-    // Rellenamos el polo (para la imagen final podemos dibujar un círculo de fondo muy estético)
-    ctx.fillStyle = '#0a1929'; // Fondo del lienzo
+    // 1. Dibujar el fondo del lienzo estético
+    ctx.fillStyle = '#0a1929'; 
     ctx.fillRect(0, 0, 800, 800);
     
-    // Dibujar un círculo decorativo de fondo
+    // Círculo decorativo
     ctx.fillStyle = 'rgba(88, 164, 205, 0.1)';
     ctx.beginPath();
     ctx.arc(400, 400, 320, 0, Math.PI * 2);
     ctx.fill();
     
-    // 2. Dibujar el SVG del polo convirtiéndolo a imagen temporal
-    const svgElement = document.getElementById('polo-svg');
-    const svgString = new XMLSerializer().serializeToString(svgElement);
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const URL = window.URL || window.webkitURL || window;
-    const blobURL = URL.createObjectURL(svgBlob);
-    
-    const poloImg = new Image();
-    poloImg.onload = function() {
-        // Dibujamos el polo centrado
-        ctx.drawImage(poloImg, 150, 100, 500, 500);
+    // 2. Cargar la imagen de la plantilla del polo
+    const poloTemplateImg = new Image();
+    poloTemplateImg.crossOrigin = "anonymous";
+    poloTemplateImg.onload = function() {
+        ctx.save();
         
-        // 3. Dibujar el diseño del usuario sobre el pecho del polo
+        // Aplicar el filtro de color al canvas para colorear el polo
+        const filterVal = getCSSFilterForColor(customizerState.color);
+        ctx.filter = filterVal;
+        
+        // Si la vista es delantera recortamos la mitad izquierda, si es trasera la mitad derecha
+        const srcX = customizerState.view === 'front' ? 0 : poloTemplateImg.naturalWidth / 2;
+        const srcW = poloTemplateImg.naturalWidth / 2;
+        const srcH = poloTemplateImg.naturalHeight;
+        
+        // Dibujamos el polo centrado en el lienzo 800x800
+        ctx.drawImage(poloTemplateImg, srcX, 0, srcW, srcH, 150, 100, 500, 600);
+        ctx.restore();
+        
+        // 3. Dibujar el diseño del usuario sobre el área de estampado correspondiente
         if (customizerState.designSrc) {
             const userImg = new Image();
             userImg.onload = function() {
                 ctx.save();
                 
-                // Área imprimible en coordenadas del lienzo (basado en el dibujo del polo de 500px a 150,100)
-                // En SVG el área es top: 32% (160px), left: 37.5% (187.5px), width: 25% (125px), height: 26% (130px)
-                // Proporcional en lienzo de 800:
-                const printX = 150 + (500 * 0.375); // 337.5
-                const printY = 100 + (500 * 0.32);  // 260
-                const printW = 500 * 0.25;          // 125
-                const printH = 500 * 0.26;          // 130
+                // Área imprimible en coordenadas del lienzo (basado en el dibujo del polo de 500x600 centrado a 150,100)
+                let printX, printY, printW, printH;
+                if (customizerState.view === 'front') {
+                    printX = 150 + (500 * 0.36); // 330
+                    printY = 100 + (600 * 0.25); // 250
+                    printW = 500 * 0.28;         // 140
+                    printH = 600 * 0.33;         // 198
+                } else {
+                    printX = 150 + (500 * 0.32); // 310
+                    printY = 100 + (600 * 0.20); // 220
+                    printW = 500 * 0.36;         // 180
+                    printH = 600 * 0.38;         // 228
+                }
                 
-                // Recortar al área de estampado para que no se salga en el diseño exportado
+                // Recortar al área de estampado para que no sobresalga el diseño
                 ctx.beginPath();
                 ctx.rect(printX, printY, printW, printH);
                 ctx.clip();
                 
-                // Centro del área de estampado
+                // Centro del estampado
                 const centerX = printX + (printW / 2);
                 const centerY = printY + (printH / 2);
                 
                 ctx.translate(centerX, centerY);
                 ctx.rotate((customizerState.rotate * Math.PI) / 180);
                 
-                // Aplicar coordenadas de desplazamiento manuales
-                // (Escalando las coordenadas X/Y del slider al tamaño del lienzo)
+                // Desplazamiento manual
                 const offsetX = parseFloat(customizerState.x);
                 const offsetY = parseFloat(customizerState.y);
-                
                 ctx.translate(offsetX, offsetY);
                 
                 // Escala final
                 const scaleFactor = customizerState.scale / 100;
-                // Calculamos tamaño del dibujo
                 const drawW = printW * scaleFactor;
                 const drawH = printH * scaleFactor;
                 
                 ctx.drawImage(userImg, -drawW/2, -drawH/2, drawW, drawH);
                 ctx.restore();
                 
-                // Ejecutar descarga
                 triggerDownload();
             };
             userImg.src = customizerState.designSrc;
         } else {
-            // Si está vacío, sólo descargar el polo
             triggerDownload();
         }
     };
     
     function triggerDownload() {
         const link = document.createElement('a');
-        link.download = `reyes-sublimados-polo-${customizerState.type}.png`;
+        link.download = `reyes-sublimados-polo-${customizerState.type}-${customizerState.view}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
-        URL.revokeObjectURL(blobURL);
     }
     
-    poloImg.src = blobURL;
+    poloTemplateImg.src = 'assets/polo_template.png';
 }
 
 // ─── MODAL GUÍA DE TALLAS ───
