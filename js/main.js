@@ -369,13 +369,13 @@ function changePoloView(view) {
     const labelText = document.getElementById('printable-label-text');
     
     if (view === 'front') {
-        if (poloMockupImg) poloMockupImg.style.objectPosition = '0% 50%';
+        if (poloMockupImg) poloMockupImg.style.transform = 'translateX(0)';
         if (printableArea) {
             printableArea.className = 'printable-area-box view-front';
         }
         if (labelText) labelText.textContent = 'Frente (Pecho)';
     } else {
-        if (poloMockupImg) poloMockupImg.style.objectPosition = '100% 50%';
+        if (poloMockupImg) poloMockupImg.style.transform = 'translateX(-50%)';
         if (printableArea) {
             printableArea.className = 'printable-area-box view-back';
         }

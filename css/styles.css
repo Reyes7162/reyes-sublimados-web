@@ -1413,24 +1413,23 @@ img { max-width: 100%; display: block; }
 .polo-mockup-container {
     position: relative;
     width: 100%;
-    max-width: 380px;
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: var(--radius-sm);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background: transparent;
     z-index: 1;
 }
 
 .polo-mockup-img-element {
-    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
     height: 100%;
-    object-fit: cover;
-    object-position: 0% 50%; /* Muestra el frente por defecto */
-    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), object-position 0.25s ease-in-out;
+    object-fit: contain;
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.35));
+    transform: translateX(0); /* Frente por defecto */
 }
 
 /* Printable box overlay */
