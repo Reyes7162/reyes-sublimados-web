@@ -369,13 +369,13 @@ function changePoloView(view) {
     const labelText = document.getElementById('printable-label-text');
     
     if (view === 'front') {
-        if (poloMockupImg) poloMockupImg.style.transform = 'translateX(0)';
+        if (poloMockupImg) poloMockupImg.src = 'assets/polo_frente.png';
         if (printableArea) {
             printableArea.className = 'printable-area-box view-front';
         }
         if (labelText) labelText.textContent = 'Frente (Pecho)';
     } else {
-        if (poloMockupImg) poloMockupImg.style.transform = 'translateX(-50%)';
+        if (poloMockupImg) poloMockupImg.src = 'assets/polo_espalda.png';
         if (printableArea) {
             printableArea.className = 'printable-area-box view-back';
         }
@@ -663,7 +663,7 @@ function downloadCustomMockup() {
     ctx.arc(400, 400, 320, 0, Math.PI * 2);
     ctx.fill();
     
-    // 2. Cargar la imagen de la plantilla del polo
+    // 2. Cargar la imagen de la plantilla del polo activa (frente o espalda)
     const poloTemplateImg = new Image();
     poloTemplateImg.crossOrigin = "anonymous";
     poloTemplateImg.onload = function() {
@@ -673,13 +673,8 @@ function downloadCustomMockup() {
         const filterVal = getCSSFilterForColor(customizerState.color);
         ctx.filter = filterVal;
         
-        // Si la vista es delantera recortamos la mitad izquierda, si es trasera la mitad derecha
-        const srcX = customizerState.view === 'front' ? 0 : poloTemplateImg.naturalWidth / 2;
-        const srcW = poloTemplateImg.naturalWidth / 2;
-        const srcH = poloTemplateImg.naturalHeight;
-        
-        // Dibujamos el polo centrado en el lienzo 800x800
-        ctx.drawImage(poloTemplateImg, srcX, 0, srcW, srcH, 150, 100, 500, 600);
+        // Dibujamos el polo completo centrado en el lienzo 800x800
+        ctx.drawImage(poloTemplateImg, 150, 100, 500, 600);
         ctx.restore();
         
         // 3. Dibujar el diseño del usuario sobre el área de estampado correspondiente
@@ -691,10 +686,10 @@ function downloadCustomMockup() {
                 // Área imprimible en coordenadas del lienzo (basado en el dibujo del polo de 500x600 centrado a 150,100)
                 let printX, printY, printW, printH;
                 if (customizerState.view === 'front') {
-                    printX = 150 + (500 * 0.36); // 330
-                    printY = 100 + (600 * 0.25); // 250
-                    printW = 500 * 0.28;         // 140
-                    printH = 600 * 0.33;         // 198
+                    printX = 150 + (500 * 0.35); // 325
+                    printY = 100 + (600 * 0.24); // 244
+                    printW = 500 * 0.30;         // 150
+                    printH = 600 * 0.32;         // 192
                 } else {
                     printX = 150 + (500 * 0.32); // 310
                     printY = 100 + (600 * 0.20); // 220
@@ -742,7 +737,7 @@ function downloadCustomMockup() {
         link.click();
     }
     
-    poloTemplateImg.src = 'assets/polo_template.png';
+    poloTemplateImg.src = customizerState.view === 'front' ? 'assets/polo_frente.png' : 'assets/polo_espalda.png';
 }
 
 // ─── MODAL GUÍA DE TALLAS ───

@@ -1421,15 +1421,11 @@ img { max-width: 100%; display: block; }
 }
 
 .polo-mockup-img-element {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
+    width: 100%;
     height: 100%;
     object-fit: contain;
-    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.35));
-    transform: translateX(0); /* Frente por defecto */
 }
 
 /* Printable box overlay */
@@ -1446,10 +1442,10 @@ img { max-width: 100%; display: block; }
 }
 
 .printable-area-box.view-front {
-    top: 25%;
-    left: 36%;
-    width: 28%;
-    height: 33%;
+    top: 24%;
+    left: 35%;
+    width: 30%;
+    height: 32%;
 }
 
 .printable-area-box.view-back {
