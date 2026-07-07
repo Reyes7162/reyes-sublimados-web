@@ -88,6 +88,7 @@
                     <li><a href="#inicio" class="nav-link">Inicio</a></li>
                     <li><a href="#servicios" class="nav-link">Servicios</a></li>
                     <li><a href="#productos" class="nav-link">Productos</a></li>
+                    <li><a href="#personalizar" class="nav-link">Personalizar</a></li>
                     <li><a href="#portafolio" class="nav-link">Portafolio</a></li>
                     <li><a href="#nosotros" class="nav-link">Nosotros</a></li>
                     <li><a href="#faq" class="nav-link">FAQ</a></li>
@@ -210,7 +211,10 @@
                             <li><i class='bx bx-check'></i> Tacto suave como algodón</li>
                             <li><i class='bx bx-check'></i> Colores que no se sienten al tacto</li>
                         </ul>
-                        <a href="#cotizar" class="btn btn-primary product-btn">Cotizar Este Polo</a>
+                        <div class="product-actions">
+                            <a href="#cotizar" class="btn btn-primary product-btn" data-polo="jersey">Cotizar Polo</a>
+                            <button class="btn btn-secondary btn-tallas"><i class='bx bx-ruler'></i> Guía de Tallas</button>
+                        </div>
                     </div>
                 </div>
 
@@ -232,12 +236,196 @@
                             <li><i class='bx bx-check'></i> Fresco y transpirable</li>
                             <li><i class='bx bx-check'></i> Alta resistencia al lavado</li>
                         </ul>
-                        <a href="#cotizar" class="btn btn-primary product-btn">Cotizar Este Polo</a>
+                        <div class="product-actions">
+                            <a href="#cotizar" class="btn btn-primary product-btn" data-polo="algodon">Cotizar Polo</a>
+                            <button class="btn btn-secondary btn-tallas"><i class='bx bx-ruler'></i> Guía de Tallas</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Personalizer Section -->
+    <section id="personalizar" class="personalizer section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-badge">Probador Virtual</span>
+                <h2 class="section-title">Personaliza Tu <span class="highlight">Polo</span></h2>
+                <p class="section-description">Elige el tipo de tela, el color, sube tu propio logo o prueba nuestras plantillas exclusivas en tiempo real.</p>
+            </div>
+
+            <div class="personalizer-grid">
+                <!-- Columna Izquierda: Visor del Polo -->
+                <div class="personalizer-viewer-wrap reveal">
+                    <div class="personalizer-viewer" id="polo-preview-area">
+                        <!-- SVG del Polo Profesional -->
+                        <svg id="polo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" class="polo-canvas-svg">
+                            <defs>
+                                <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="rgba(0,0,0,0.35)" />
+                                    <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+                                </radialGradient>
+                            </defs>
+                            <!-- Sombra de suelo -->
+                            <ellipse cx="250" cy="465" rx="140" ry="12" fill="url(#shadow)" />
+                            
+                            <!-- Cuerpo del Polo -->
+                            <path id="polo-body" d="M130,80 L180,80 C180,80 190,110 250,110 C310,110 320,80 320,80 L370,80 L430,145 L375,190 L370,420 C370,430 360,440 350,440 L150,440 C140,440 130,430 130,420 L125,190 L70,145 Z" fill="#ffffff" stroke="#0d2137" stroke-width="5" stroke-linejoin="round" />
+                            
+                            <!-- Manga Izquierda Detalles -->
+                            <path d="M127,190 L70,145 L102,108 L129,135" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3" />
+                            <!-- Manga Derecha Detalles -->
+                            <path d="M373,190 L430,145 L398,108 L371,135" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="3" />
+                            
+                            <!-- Interior del cuello (Sombra) -->
+                            <path id="polo-neck-inner" d="M180,80 C180,80 190,110 250,110 C310,110 320,80 320,80 C320,80 295,73 250,73 C205,73 180,80 180,80 Z" fill="rgba(0,0,0,0.15)" stroke="#0d2137" stroke-width="4" />
+                            
+                            <!-- Cuello Izquierdo -->
+                            <path id="collar-left" d="M180,80 L235,130 L250,110 C210,110 180,80 180,80 Z" fill="#ffffff" stroke="#0d2137" stroke-width="4" />
+                            <!-- Cuello Derecho -->
+                            <path id="collar-right" d="M320,80 L265,130 L250,110 C290,110 320,80 320,80 Z" fill="#ffffff" stroke="#0d2137" stroke-width="4" />
+                            
+                            <!-- Tapeta y botones -->
+                            <path id="polo-placket" d="M242,110 L242,175 L258,175 L258,110 Z" fill="#f8f9fa" stroke="#0d2137" stroke-width="3" />
+                            <circle cx="250" cy="126" r="3" fill="#121212" />
+                            <circle cx="250" cy="150" r="3" fill="#121212" />
+                            
+                            <!-- Sombra de costuras laterales -->
+                            <path d="M130,210 C138,280 138,360 148,420" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="4" />
+                            <path d="M370,210 C362,280 362,360 352,420" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="4" />
+                        </svg>
+
+                        <!-- Contenedor del área imprimible (Pecho) -->
+                        <div class="printable-area-box">
+                            <span class="printable-label">Área de estampado</span>
+                            <!-- Capa interactiva donde va el diseño -->
+                            <div class="design-layer" id="design-canvas-layer">
+                                <img src="" id="user-design-img" alt="Tu diseño" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Panel de Control -->
+                <div class="personalizer-controls reveal">
+                    <!-- 1. Selección de Tela -->
+                    <div class="control-group">
+                        <label class="control-label">1. Elige el tipo de tela</label>
+                        <div class="control-tabs">
+                            <button class="tab-btn active" id="tab-jersey" onclick="changePoloType('jersey')">
+                                <i class='bx bxs-t-shirt'></i> Jersey Spun (S/ 20.00)
+                            </button>
+                            <button class="tab-btn" id="tab-algodon" onclick="changePoloType('algodon')">
+                                <i class='bx bxs-t-shirt'></i> 100% Algodón (S/ 40.00)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Selección de Color (Solo para algodón) -->
+                    <div class="control-group" id="color-selector-group" style="display: none;">
+                        <label class="control-label">2. Selecciona el color de tela</label>
+                        <div class="color-swatches">
+                            <button class="swatch active" data-color="#ffffff" style="background-color: #ffffff;" title="Blanco"></button>
+                            <button class="swatch" data-color="#121212" style="background-color: #121212;" title="Negro"></button>
+                            <button class="swatch" data-color="#0e2f56" style="background-color: #0e2f56;" title="Azul Marino"></button>
+                            <button class="swatch" data-color="#a61c1c" style="background-color: #a61c1c;" title="Rojo"></button>
+                            <button class="swatch" data-color="#194c33" style="background-color: #194c33;" title="Verde"></button>
+                            <button class="swatch" data-color="#7f8c8d" style="background-color: #7f8c8d;" title="Gris"></button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Diseño: Subir archivo o usar plantilla -->
+                    <div class="control-group">
+                        <label class="control-label">3. Añadir Diseño o Logotipo</label>
+                        <div class="design-options-tabs">
+                            <button class="design-tab active" onclick="toggleDesignTab('upload')">Subir Imagen</button>
+                            <button class="design-tab" onclick="toggleDesignTab('presets')">Plantillas Reyes</button>
+                        </div>
+
+                        <!-- Panel de Subida de Archivo -->
+                        <div class="design-panel" id="panel-upload">
+                            <div class="file-upload-zone" onclick="document.getElementById('design-file-input').click()">
+                                <i class='bx bx-cloud-upload'></i>
+                                <span>Arrastra o selecciona tu imagen</span>
+                                <p>Soporta PNG o JPG (Fondo transparente recomendado)</p>
+                            </div>
+                            <input type="file" id="design-file-input" accept="image/*" style="display: none;" onchange="handleDesignUpload(event)">
+                        </div>
+
+                        <!-- Panel de Plantillas -->
+                        <div class="design-panel" id="panel-presets" style="display: none;">
+                            <div class="presets-grid">
+                                <div class="preset-item" onclick="applyPreset('misa')">
+                                    <div class="preset-icon"><i class='bx bx-church'></i></div>
+                                    <span>Misa de Honras</span>
+                                </div>
+                                <div class="preset-item" onclick="applyPreset('cumple')">
+                                    <div class="preset-icon"><i class='bx bx-cake'></i></div>
+                                    <span>Cumpleaños</span>
+                                </div>
+                                <div class="preset-item" onclick="applyPreset('corp')">
+                                    <div class="preset-icon"><i class='bx bx-briefcase'></i></div>
+                                    <span>Corporativo</span>
+                                </div>
+                                <div class="preset-item" onclick="applyPreset('pareja')">
+                                    <div class="preset-icon"><i class='bx bx-heart'></i></div>
+                                    <span>Polos Parejas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Ajustes del Diseño (Tamaño, Posición, etc.) -->
+                    <div class="control-group" id="adjustments-group" style="display: none;">
+                        <label class="control-label">4. Ajustar Diseño en el Polo</label>
+                        
+                        <div class="slider-control">
+                            <div class="slider-header">
+                                <span>Tamaño (Escala)</span>
+                                <span id="val-scale">60%</span>
+                            </div>
+                            <input type="range" id="slider-scale" min="20" max="100" value="60" oninput="updateDesignLayout()">
+                        </div>
+
+                        <div class="slider-control">
+                            <div class="slider-header">
+                                <span>Posición X (Horizontal)</span>
+                                <span id="val-x">0px</span>
+                            </div>
+                            <input type="range" id="slider-x" min="-60" max="60" value="0" oninput="updateDesignLayout()">
+                        </div>
+
+                        <div class="slider-control">
+                            <div class="slider-header">
+                                <span>Posición Y (Vertical)</span>
+                                <span id="val-y">0px</span>
+                            </div>
+                            <input type="range" id="slider-y" min="-60" max="60" value="0" oninput="updateDesignLayout()">
+                        </div>
+
+                        <div class="slider-control">
+                            <div class="slider-header">
+                                <span>Girar (Rotación)</span>
+                                <span id="val-rotate">0°</span>
+                            </div>
+                            <input type="range" id="slider-rotate" min="-180" max="180" value="0" oninput="updateDesignLayout()">
+                        </div>
+                    </div>
+
+                    <!-- Acciones del Personalizador -->
+                    <div class="personalizer-actions">
+                        <button class="btn btn-secondary btn-full" onclick="downloadCustomMockup()"><i class='bx bx-download'></i> Descargar Diseño PNG</button>
+                        <button class="btn btn-primary btn-full" onclick="applyCustomToQuote()"><i class='bx bx-check-double'></i> Aplicar a mi Cotización</button>
+                        <button class="btn btn-secondary btn-full btn-tallas"><i class='bx bx-ruler'></i> Ver Guía de Tallas</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Canvas oculto para exportación en alta calidad -->
+    <canvas id="export-canvas" width="800" height="800" style="display: none;"></canvas>
 
     <!-- Portfolio Section -->
     <section id="portafolio" class="portfolio section">
@@ -478,6 +666,43 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Subsección: Clientes Felices (Muro de Fotos Reales) -->
+            <div class="happy-clients-section reveal">
+                <h3 class="happy-clients-title">Pedidos <span class="highlight">Reales</span> Entregados</h3>
+                <p class="happy-clients-desc">Así lucen nuestros polos terminados en manos de nuestros clientes en Guadalupe y todo el Perú.</p>
+                
+                <div class="happy-clients-grid">
+                    <div class="client-photo-card">
+                        <img src="assets/polo spun 2.jpg" alt="Polo para Misa de Honras">
+                        <div class="client-photo-overlay">
+                            <span>Misas de Honras</span>
+                            <p>"Colores vivos y eterno"</p>
+                        </div>
+                    </div>
+                    <div class="client-photo-card">
+                        <img src="assets/polo algodon 2.jpg" alt="Polo Estampado Corporativo">
+                        <div class="client-photo-overlay">
+                            <span>Polos Corporativos</span>
+                            <p>"Fresco y muy duradero"</p>
+                        </div>
+                    </div>
+                    <div class="client-photo-card">
+                        <img src="assets/polo spun 3.jpg" alt="Polo para Promoción Colegios">
+                        <div class="client-photo-overlay">
+                            <span>Promociones Escolares</span>
+                            <p>"Tallas exactas y cómodos"</p>
+                        </div>
+                    </div>
+                    <div class="client-photo-card">
+                        <img src="assets/polo algodon 3.jpg" alt="Polos de Pareja">
+                        <div class="client-photo-overlay">
+                            <span>Polos en Pareja</span>
+                            <p>"Detalles modernos y nítidos"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -526,6 +751,42 @@
                             <label for="mensaje">Descripción del diseño</label>
                             <textarea id="mensaje" name="mensaje" rows="4" placeholder="Cuéntanos sobre tu diseño, colores, tallas, etc."></textarea>
                         </div>
+                        
+                        <!-- Campo oculto para registrar si usó el personalizador -->
+                        <input type="hidden" id="custom-design-data" name="custom-design-data" value="">
+
+                        <!-- Resumen dinámico de cotización -->
+                        <div class="quote-summary-card" id="quote-summary" style="display: none;">
+                            <h4 class="summary-title"><i class='bx bx-calculator'></i> Resumen de Cotización</h4>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="summary-label">Precio Unitario:</span>
+                                    <span class="summary-value" id="summary-unit-price">S/ 0.00</span>
+                                </div>
+                                <div class="summary-item" id="summary-discount-row" style="display: none;">
+                                    <span class="summary-label">Descuento aplicado:</span>
+                                    <span class="summary-value highlight" id="summary-discount-pct">0%</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Monto Total:</span>
+                                    <span class="summary-value" id="summary-total-price">S/ 0.00</span>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-item highlight-box">
+                                    <span class="summary-label">Adelanto (50%):</span>
+                                    <span class="summary-value highlight" id="summary-deposit">S/ 0.00</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Saldo contraentrega:</span>
+                                    <span class="summary-value" id="summary-balance">S/ 0.00</span>
+                                </div>
+                                <div class="summary-item date-box">
+                                    <span class="summary-label"><i class='bx bx-calendar-star'></i> Entrega Estimada:</span>
+                                    <span class="summary-value" id="summary-delivery-date">-</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <button type="submit" class="btn btn-primary btn-full" id="submit-btn">
                             <i class='bx bxl-whatsapp'></i> Enviar por WhatsApp
                         </button>
@@ -683,6 +944,142 @@
         <i class='bx bxl-whatsapp'></i>
         <span class="whatsapp-tooltip">¡Escríbenos!</span>
     </a>
+
+    <!-- Modal Guía de Tallas -->
+    <div id="modal-tallas" class="modal-tallas-overlay">
+        <div class="modal-tallas-container">
+            <button class="modal-tallas-close" id="modal-tallas-close-btn">&times;</button>
+            <div class="modal-tallas-header">
+                <i class='bx bx-ruler'></i>
+                <h3>Guía de Tallas Oficial</h3>
+                <p>Compara las medidas con un polo que ya tengas en casa (colocado sobre una superficie plana).</p>
+            </div>
+            
+            <div class="modal-tallas-tabs">
+                <button class="tallas-tab-btn active" id="tab-tallas-adultos" onclick="switchTallasTab('adultos')">Adultos</button>
+                <button class="tallas-tab-btn" id="tab-tallas-ninos" onclick="switchTallasTab('ninos')">Niños</button>
+            </div>
+
+            <!-- Tabla Adultos -->
+            <div class="tallas-table-wrap" id="table-adultos">
+                <table class="tallas-table">
+                    <thead>
+                        <tr>
+                            <th>Talla</th>
+                            <th>Ancho (A)</th>
+                            <th>Largo (B)</th>
+                            <th>Recomendación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>S</strong></td>
+                            <td>48 cm</td>
+                            <td>68 cm</td>
+                            <td>Estatura: 1.60m - 1.68m</td>
+                        </tr>
+                        <tr>
+                            <td><strong>M</strong></td>
+                            <td>51 cm</td>
+                            <td>71 cm</td>
+                            <td>Estatura: 1.68m - 1.75m</td>
+                        </tr>
+                        <tr>
+                            <td><strong>L</strong></td>
+                            <td>54 cm</td>
+                            <td>74 cm</td>
+                            <td>Estatura: 1.75m - 1.82m</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XL</strong></td>
+                            <td>57 cm</td>
+                            <td>77 cm</td>
+                            <td>Estatura: 1.82m - 1.88m</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XXL</strong></td>
+                            <td>60 cm</td>
+                            <td>80 cm</td>
+                            <td>Estatura: Más de 1.88m</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tabla Niños -->
+            <div class="tallas-table-wrap" id="table-ninos" style="display: none;">
+                <table class="tallas-table">
+                    <thead>
+                        <tr>
+                            <th>Talla</th>
+                            <th>Ancho (A)</th>
+                            <th>Largo (B)</th>
+                            <th>Edad sugerida</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td>32 cm</td>
+                            <td>42 cm</td>
+                            <td>1 a 2 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td>34 cm</td>
+                            <td>44 cm</td>
+                            <td>3 a 4 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6</strong></td>
+                            <td>36 cm</td>
+                            <td>47 cm</td>
+                            <td>5 a 6 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8</strong></td>
+                            <td>38 cm</td>
+                            <td>50 cm</td>
+                            <td>7 a 8 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>10</strong></td>
+                            <td>40 cm</td>
+                            <td>53 cm</td>
+                            <td>9 a 10 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>12</strong></td>
+                            <td>42 cm</td>
+                            <td>56 cm</td>
+                            <td>11 a 12 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>14</strong></td>
+                            <td>44 cm</td>
+                            <td>59 cm</td>
+                            <td>13 a 14 años</td>
+                        </tr>
+                        <tr>
+                            <td><strong>16</strong></td>
+                            <td>46 cm</td>
+                            <td>62 cm</td>
+                            <td>15 a 16 años</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="modal-tallas-footer">
+                <div class="measurement-instruction">
+                    <div class="instruction-icon"><i class='bx bx-info-circle'></i></div>
+                    <p><strong>¿Cómo medir?</strong> <br>
+                    <strong>Ancho (A):</strong> Mide de axila a axila. <br>
+                    <strong>Largo (B):</strong> Mide desde el punto más alto del hombro hasta el borde inferior.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="js/main.js"></script>

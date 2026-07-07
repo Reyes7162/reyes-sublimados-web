@@ -149,22 +149,125 @@ function createParticles() {
 
 createParticles();
 
+// ─── RESUMEN DE COTIZACIÓN Y CALCULADORA EN VIVO ───
+const PRECIO_JERSEY_BASE = 20;
+const PRECIO_ALGODON_BASE = 40;
+
+function calcularFechaEntrega(dias) {
+    let result = new Date();
+    let contados = 0;
+    while (contados < dias) {
+        result.setDate(result.getDate() + 1);
+        const diaSemana = result.getDay(); // 0 = Domingo, 6 = Sábado
+        if (diaSemana !== 0 && diaSemana !== 6) {
+            contados++;
+        }
+    }
+    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return `${diasSemana[result.getDay()]}, ${result.getDate()} de ${meses[result.getMonth()]} de ${result.getFullYear()}`;
+}
+
+function actualizarCalculadora() {
+    const cantidadInput = document.getElementById('cantidad');
+    const tipoPoloSelect = document.getElementById('tipo-polo');
+    const summaryCard = document.getElementById('quote-summary');
+
+    if (!cantidadInput || !tipoPoloSelect || !summaryCard) return;
+
+    const cantidad = parseInt(cantidadInput.value, 10);
+    const tipoPolo = tipoPoloSelect.value;
+
+    if (isNaN(cantidad) || cantidad < 2 || !tipoPolo) {
+        summaryCard.style.display = 'none';
+        return;
+    }
+
+    // Precio base
+    let precioUnitario = tipoPolo === 'jersey' ? PRECIO_JERSEY_BASE : PRECIO_ALGODON_BASE;
+    if (tipoPolo === 'ambos') {
+        precioUnitario = (PRECIO_JERSEY_BASE + PRECIO_ALGODON_BASE) / 2; // promedio estimado
+    }
+
+    // Descuentos por volumen
+    let descuentoPct = 0;
+    if (cantidad >= 12 && cantidad < 30) {
+        descuentoPct = 10;
+    } else if (cantidad >= 30) {
+        descuentoPct = 20;
+    }
+
+    const precioConDescuento = precioUnitario * (1 - descuentoPct / 100);
+    const total = cantidad * precioConDescuento;
+    const adelanto = total * 0.5;
+    const saldo = total - adelanto;
+    const fechaEntregaStr = calcularFechaEntrega(4);
+
+    // Actualizar interfaz
+    document.getElementById('summary-unit-price').textContent = `S/ ${precioUnitario.toFixed(2)}`;
+    const discountRow = document.getElementById('summary-discount-row');
+    if (descuentoPct > 0) {
+        discountRow.style.display = 'flex';
+        document.getElementById('summary-discount-pct').textContent = `${descuentoPct}%`;
+    } else {
+        discountRow.style.display = 'none';
+    }
+    document.getElementById('summary-total-price').textContent = `S/ ${total.toFixed(2)}`;
+    document.getElementById('summary-deposit').textContent = `S/ ${adelanto.toFixed(2)}`;
+    document.getElementById('summary-balance').textContent = `S/ ${saldo.toFixed(2)}`;
+    document.getElementById('summary-delivery-date').textContent = fechaEntregaStr;
+
+    summaryCard.style.display = 'block';
+}
+
+// Hook calculator inputs
+document.getElementById('cantidad').addEventListener('input', actualizarCalculadora);
+document.getElementById('tipo-polo').addEventListener('change', actualizarCalculadora);
+
 // ─── WHATSAPP FORM SUBMIT ────────────────────
 function handleQuoteSubmit(event) {
     event.preventDefault();
     const form = event.target;
     const nombre = form.nombre.value.trim();
     const telefono = form.telefono.value.trim();
-    const cantidad = form.cantidad.value.trim();
-    const tipoPolo = form['tipo-polo'].options[form['tipo-polo'].selectedIndex].text;
+    const cantidad = parseInt(form.cantidad.value, 10);
+    const tipoPoloVal = form['tipo-polo'].value;
+    const tipoPoloText = form['tipo-polo'].options[form['tipo-polo'].selectedIndex].text;
     const mensaje = form.mensaje.value.trim();
+    const customData = document.getElementById('custom-design-data').value;
 
-    let whatsappMsg = `¡Hola! Quisiera cotizar polos.\n\n`;
+    let precioUnitario = tipoPoloVal === 'jersey' ? PRECIO_JERSEY_BASE : PRECIO_ALGODON_BASE;
+    if (tipoPoloVal === 'ambos') precioUnitario = (PRECIO_JERSEY_BASE + PRECIO_ALGODON_BASE) / 2;
+
+    let descuentoPct = 0;
+    if (cantidad >= 12 && cantidad < 30) descuentoPct = 10;
+    else if (cantidad >= 30) descuentoPct = 20;
+
+    const total = cantidad * precioUnitario * (1 - descuentoPct / 100);
+    const adelanto = total * 0.5;
+    const saldo = total - adelanto;
+    const fechaEntrega = calcularFechaEntrega(4);
+
+    let whatsappMsg = `¡Hola Reyes Sublimados! Quisiera cotizar polos.\n\n`;
     whatsappMsg += `👤 *Nombre:* ${nombre}\n`;
     whatsappMsg += `📞 *Teléfono:* ${telefono}\n`;
-    whatsappMsg += `👕 *Tipo de polo:* ${tipoPolo}\n`;
+    whatsappMsg += `👕 *Tipo:* ${tipoPoloText}\n`;
     whatsappMsg += `📦 *Cantidad:* ${cantidad} unidades\n`;
-    if (mensaje) whatsappMsg += `📝 *Detalles:* ${mensaje}\n`;
+    
+    if (customData) {
+        whatsappMsg += `🎨 *Pre-diseño web:* ${customData}\n`;
+    }
+    if (mensaje) {
+        whatsappMsg += `📝 *Detalles:* ${mensaje}\n`;
+    }
+
+    whatsappMsg += `\n💵 *Resumen Estimado:*\n`;
+    whatsappMsg += `• Unitario: S/ ${precioUnitario.toFixed(2)}\n`;
+    if (descuentoPct > 0) whatsappMsg += `• Descuento: ${descuentoPct}%\n`;
+    whatsappMsg += `• *Total:* S/ ${total.toFixed(2)}\n`;
+    whatsappMsg += `• *Adelanto (50%):* S/ ${adelanto.toFixed(2)}\n`;
+    whatsappMsg += `• *Saldo contraentrega:* S/ ${saldo.toFixed(2)}\n`;
+    whatsappMsg += `📆 *Fecha estimada de entrega:* ${fechaEntrega}\n`;
 
     const whatsappNumber = '51996670614';
     const encoded = encodeURIComponent(whatsappMsg);
@@ -178,10 +281,479 @@ function handleQuoteSubmit(event) {
     setTimeout(() => {
         window.open(url, '_blank');
         form.reset();
+        document.getElementById('quote-summary').style.display = 'none';
         btn.innerHTML = `<i class='bx bxl-whatsapp'></i> Enviar por WhatsApp`;
         btn.style.background = '';
     }, 800);
 }
+
+// ─── INTERACTIVE POLO CUSTOMIZER (PROBADOR) ───
+let customizerState = {
+    type: 'jersey',       // 'jersey' | 'algodon'
+    color: '#ffffff',     // Color de fondo del polo
+    designSrc: '',        // Imagen del diseño
+    scale: 60,            // %
+    x: 0,                 // px
+    y: 0,                 // px
+    rotate: 0,            // deg
+    designName: ''        // Nombre de la plantilla o imagen subida
+};
+
+function changePoloType(type) {
+    customizerState.type = type;
+    
+    // Activar tabs
+    document.getElementById('tab-jersey').classList.toggle('active', type === 'jersey');
+    document.getElementById('tab-algodon').classList.toggle('active', type === 'algodon');
+    
+    const colorGroup = document.getElementById('color-selector-group');
+    const poloBody = document.getElementById('polo-body');
+    const collarLeft = document.getElementById('collar-left');
+    const collarRight = document.getElementById('collar-right');
+
+    if (type === 'jersey') {
+        // Jersey Spun sólo blanco
+        colorGroup.style.display = 'none';
+        customizerState.color = '#ffffff';
+        poloBody.setAttribute('fill', '#ffffff');
+        collarLeft.setAttribute('fill', '#ffffff');
+        collarRight.setAttribute('fill', '#ffffff');
+    } else {
+        // 100% Algodón permite colores
+        colorGroup.style.display = 'flex';
+        // Restaurar color activo
+        const activeSwatch = document.querySelector('.swatch.active');
+        if (activeSwatch) {
+            const activeColor = activeSwatch.dataset.color;
+            customizerState.color = activeColor;
+            poloBody.setAttribute('fill', activeColor);
+            collarLeft.setAttribute('fill', activeColor);
+            collarRight.setAttribute('fill', activeColor);
+        }
+    }
+}
+
+// Configurar swatches
+document.querySelectorAll('.swatch').forEach(swatch => {
+    swatch.addEventListener('click', () => {
+        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        swatch.classList.add('active');
+        
+        const color = swatch.dataset.color;
+        customizerState.color = color;
+        
+        const poloBody = document.getElementById('polo-body');
+        const collarLeft = document.getElementById('collar-left');
+        const collarRight = document.getElementById('collar-right');
+        
+        poloBody.setAttribute('fill', color);
+        collarLeft.setAttribute('fill', color);
+        collarRight.setAttribute('fill', color);
+    });
+});
+
+function toggleDesignTab(tab) {
+    const uploadTab = document.querySelectorAll('.design-tab')[0];
+    const presetsTab = document.querySelectorAll('.design-tab')[1];
+    
+    const uploadPanel = document.getElementById('panel-upload');
+    const presetsPanel = document.getElementById('panel-presets');
+    
+    if (tab === 'upload') {
+        uploadTab.classList.add('active');
+        presetsTab.classList.remove('active');
+        uploadPanel.style.display = 'block';
+        presetsPanel.style.display = 'none';
+    } else {
+        uploadTab.classList.remove('active');
+        presetsTab.classList.add('active');
+        uploadPanel.style.display = 'none';
+        presetsPanel.style.display = 'block';
+    }
+}
+
+function handleDesignUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        customizerState.designSrc = e.target.result;
+        customizerState.designName = `Imagen Subida: ${file.name}`;
+        
+        const img = document.getElementById('user-design-img');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        
+        document.getElementById('adjustments-group').style.display = 'flex';
+        resetAdjustments();
+        updateDesignLayout();
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetAdjustments() {
+    customizerState.scale = 60;
+    customizerState.x = 0;
+    customizerState.y = 0;
+    customizerState.rotate = 0;
+    
+    document.getElementById('slider-scale').value = 60;
+    document.getElementById('slider-x').value = 0;
+    document.getElementById('slider-y').value = 0;
+    document.getElementById('slider-rotate').value = 0;
+}
+
+function updateDesignLayout() {
+    customizerState.scale = document.getElementById('slider-scale').value;
+    customizerState.x = document.getElementById('slider-x').value;
+    customizerState.y = document.getElementById('slider-y').value;
+    customizerState.rotate = document.getElementById('slider-rotate').value;
+    
+    // Actualizar etiquetas texto
+    document.getElementById('val-scale').textContent = `${customizerState.scale}%`;
+    document.getElementById('val-x').textContent = `${customizerState.x}px`;
+    document.getElementById('val-y').textContent = `${customizerState.y}px`;
+    document.getElementById('val-rotate').textContent = `${customizerState.rotate}°`;
+    
+    // Aplicar transformaciones CSS
+    const img = document.getElementById('user-design-img');
+    if (img) {
+        img.style.transform = `translate(${customizerState.x}px, ${customizerState.y}px) scale(${customizerState.scale / 100}) rotate(${customizerState.rotate}deg)`;
+    }
+}
+
+// Generador de plantillas predefinidas en Canvas
+function applyPreset(type) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 300;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, 300, 300);
+    
+    if (type === 'misa') {
+        // Dibujar cruz elegante
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(140, 40, 20, 180);
+        ctx.fillRect(90, 90, 120, 20);
+        
+        ctx.fillStyle = '#d4af37'; // Dorado
+        ctx.font = 'bold 22px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('En Memoria', 150, 255);
+        ctx.font = '16px Outfit, sans-serif';
+        ctx.fillText('Recuerdo Eterno', 150, 280);
+        customizerState.designName = 'Plantilla: Misa de Honras';
+    } 
+    else if (type === 'cumple') {
+        // Dibujar corona y texto
+        ctx.fillStyle = '#f39c12'; // Amarillo/Oro
+        ctx.beginPath();
+        ctx.moveTo(90, 130);
+        ctx.lineTo(100, 70);
+        ctx.lineTo(130, 100);
+        ctx.lineTo(150, 50);
+        ctx.lineTo(170, 100);
+        ctx.lineTo(200, 70);
+        ctx.lineTo(210, 130);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Círculos de perlas de la corona
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(100, 70, 4, 0, Math.PI * 2);
+        ctx.arc(150, 50, 5, 0, Math.PI * 2);
+        ctx.arc(200, 70, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#e67e22';
+        ctx.lineWidth = 3;
+        ctx.font = 'bold 24px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeText('FELIZ CUMPLE', 150, 180);
+        ctx.fillText('FELIZ CUMPLE', 150, 180);
+        
+        ctx.fillStyle = '#f1c40f';
+        ctx.font = '16px Outfit, sans-serif';
+        ctx.fillText('Familia Reunida', 150, 210);
+        customizerState.designName = 'Plantilla: Cumpleaños Feliz';
+    }
+    else if (type === 'corp') {
+        // Escudo corporativo
+        ctx.fillStyle = '#235d82';
+        ctx.beginPath();
+        ctx.moveTo(150, 50);
+        ctx.lineTo(220, 70);
+        ctx.lineTo(200, 180);
+        ctx.lineTo(150, 230);
+        ctx.lineTo(100, 180);
+        ctx.lineTo(80, 70);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('REYES', 150, 125);
+        ctx.font = '12px Outfit, sans-serif';
+        ctx.fillText('SUBLIMADOS', 150, 150);
+        
+        ctx.strokeStyle = '#58a4cd';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        customizerState.designName = 'Plantilla: Escudo Reyes Corporativo';
+    }
+    else if (type === 'pareja') {
+        // Corazones unidos
+        ctx.fillStyle = '#c0392b'; // Rojo
+        
+        // Corazón 1
+        ctx.beginPath();
+        ctx.arc(125, 120, 25, Math.PI, 0);
+        ctx.arc(175, 120, 25, Math.PI, 0);
+        ctx.lineTo(150, 180);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 18px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('J & M', 150, 130);
+        
+        ctx.fillStyle = '#e74c3c';
+        ctx.font = 'bold 16px Outfit, sans-serif';
+        ctx.fillText('Juntos x Siempre', 150, 220);
+        customizerState.designName = 'Plantilla: Parejas Amor';
+    }
+    
+    const dataURL = canvas.toDataURL();
+    customizerState.designSrc = dataURL;
+    
+    const img = document.getElementById('user-design-img');
+    img.src = dataURL;
+    img.style.display = 'block';
+    
+    document.getElementById('adjustments-group').style.display = 'flex';
+    resetAdjustments();
+    updateDesignLayout();
+}
+
+function applyCustomToQuote() {
+    // Buscar campos del formulario
+    const tipoPoloSelect = document.getElementById('tipo-polo');
+    const descTextarea = document.getElementById('mensaje');
+    
+    if (customizerState.type === 'jersey') {
+        tipoPoloSelect.value = 'jersey';
+    } else {
+        tipoPoloSelect.value = 'algodon';
+    }
+    
+    // Rellenar campo oculto de personalización
+    const colorTxt = customizerState.type === 'jersey' ? 'Blanco' : getFriendlyColorName(customizerState.color);
+    const summaryStr = `Tipo: ${customizerState.type === 'jersey' ? 'Jersey Spun' : '100% Algodón'}, Color: ${colorTxt}, Diseño: ${customizerState.designName || 'Lienzo vacío'}`;
+    
+    document.getElementById('custom-design-data').value = summaryStr;
+    
+    // Mensaje descriptivo
+    descTextarea.value = `¡Polo personalizado diseñado en la web!\n• Tela: ${customizerState.type === 'jersey' ? 'Jersey Spun (Blanco)' : '100% Algodón'}\n• Color del polo: ${colorTxt}\n• Diseño: ${customizerState.designName || 'Por favor, comuníquese para pasar la imagen.'}`;
+    
+    actualizarCalculadora();
+    
+    // Notificación y scroll
+    const personalizerSection = document.getElementById('personalizar');
+    const quoteSection = document.getElementById('cotizar');
+    
+    const top = quoteSection.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+    
+    // Crear una notificación flotante temporal
+    const notif = document.createElement('div');
+    notif.textContent = '¡Diseño aplicado! Rellena tus datos para cotizar.';
+    notif.style.cssText = `
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        padding: 0.8rem 1.8rem;
+        border-radius: 50px;
+        box-shadow: var(--shadow-glow);
+        z-index: 3000;
+        font-weight: 600;
+        font-family: var(--font-main);
+        font-size: 0.9rem;
+        animation: slideDown 0.3s ease;
+    `;
+    document.body.appendChild(notif);
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        setTimeout(() => notif.remove(), 300);
+    }, 2500);
+    
+    window.scrollTo({ top, behavior: 'smooth' });
+}
+
+function getFriendlyColorName(hex) {
+    const colors = {
+        '#ffffff': 'Blanco',
+        '#121212': 'Negro',
+        '#0e2f56': 'Azul Marino',
+        '#a61c1c': 'Rojo',
+        '#194c33': 'Verde',
+        '#7f8c8d': 'Gris'
+    };
+    return colors[hex.toLowerCase()] || 'Personalizado';
+}
+
+// Descarga en canvas PNG
+function downloadCustomMockup() {
+    const canvas = document.getElementById('export-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, 800, 800);
+    
+    // 1. Dibujar el fondo del color del polo seleccionado
+    ctx.fillStyle = customizerState.color;
+    // Rellenamos el polo (para la imagen final podemos dibujar un círculo de fondo muy estético)
+    ctx.fillStyle = '#0a1929'; // Fondo del lienzo
+    ctx.fillRect(0, 0, 800, 800);
+    
+    // Dibujar un círculo decorativo de fondo
+    ctx.fillStyle = 'rgba(88, 164, 205, 0.1)';
+    ctx.beginPath();
+    ctx.arc(400, 400, 320, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 2. Dibujar el SVG del polo convirtiéndolo a imagen temporal
+    const svgElement = document.getElementById('polo-svg');
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const URL = window.URL || window.webkitURL || window;
+    const blobURL = URL.createObjectURL(svgBlob);
+    
+    const poloImg = new Image();
+    poloImg.onload = function() {
+        // Dibujamos el polo centrado
+        ctx.drawImage(poloImg, 150, 100, 500, 500);
+        
+        // 3. Dibujar el diseño del usuario sobre el pecho del polo
+        if (customizerState.designSrc) {
+            const userImg = new Image();
+            userImg.onload = function() {
+                ctx.save();
+                
+                // Área imprimible en coordenadas del lienzo (basado en el dibujo del polo de 500px a 150,100)
+                // En SVG el área es top: 32% (160px), left: 37.5% (187.5px), width: 25% (125px), height: 26% (130px)
+                // Proporcional en lienzo de 800:
+                const printX = 150 + (500 * 0.375); // 337.5
+                const printY = 100 + (500 * 0.32);  // 260
+                const printW = 500 * 0.25;          // 125
+                const printH = 500 * 0.26;          // 130
+                
+                // Recortar al área de estampado para que no se salga en el diseño exportado
+                ctx.beginPath();
+                ctx.rect(printX, printY, printW, printH);
+                ctx.clip();
+                
+                // Centro del área de estampado
+                const centerX = printX + (printW / 2);
+                const centerY = printY + (printH / 2);
+                
+                ctx.translate(centerX, centerY);
+                ctx.rotate((customizerState.rotate * Math.PI) / 180);
+                
+                // Aplicar coordenadas de desplazamiento manuales
+                // (Escalando las coordenadas X/Y del slider al tamaño del lienzo)
+                const offsetX = parseFloat(customizerState.x);
+                const offsetY = parseFloat(customizerState.y);
+                
+                ctx.translate(offsetX, offsetY);
+                
+                // Escala final
+                const scaleFactor = customizerState.scale / 100;
+                // Calculamos tamaño del dibujo
+                const drawW = printW * scaleFactor;
+                const drawH = printH * scaleFactor;
+                
+                ctx.drawImage(userImg, -drawW/2, -drawH/2, drawW, drawH);
+                ctx.restore();
+                
+                // Ejecutar descarga
+                triggerDownload();
+            };
+            userImg.src = customizerState.designSrc;
+        } else {
+            // Si está vacío, sólo descargar el polo
+            triggerDownload();
+        }
+    };
+    
+    function triggerDownload() {
+        const link = document.createElement('a');
+        link.download = `reyes-sublimados-polo-${customizerState.type}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        URL.revokeObjectURL(blobURL);
+    }
+    
+    poloImg.src = blobURL;
+}
+
+// ─── MODAL GUÍA DE TALLAS ───
+const modalTallas = document.getElementById('modal-tallas');
+const modalTallasClose = document.getElementById('modal-tallas-close-btn');
+
+function switchTallasTab(tab) {
+    const tabAdultos = document.getElementById('tab-tallas-adultos');
+    const tabNinos = document.getElementById('tab-tallas-ninos');
+    
+    const tableAdultos = document.getElementById('table-adultos');
+    const tableNinos = document.getElementById('table-ninos');
+    
+    if (tab === 'adultos') {
+        tabAdultos.classList.add('active');
+        tabNinos.classList.remove('active');
+        tableAdultos.style.display = 'block';
+        tableNinos.style.display = 'none';
+    } else {
+        tabAdultos.classList.remove('active');
+        tabNinos.classList.add('active');
+        tableAdultos.style.display = 'none';
+        tableNinos.style.display = 'block';
+    }
+}
+
+// Agregar listeners para abrir guía de tallas
+document.querySelectorAll('.btn-tallas').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modalTallas.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+    });
+});
+
+// Cerrar modal
+if (modalTallasClose) {
+    modalTallasClose.addEventListener('click', () => {
+        modalTallas.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+}
+
+if (modalTallas) {
+    modalTallas.addEventListener('click', (e) => {
+        if (e.target === modalTallas) {
+            modalTallas.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+}
+
 
 // ─── SMOOTH SCROLLING ────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -250,6 +822,18 @@ faqTriggers.forEach(trigger => {
             content.style.maxHeight = content.scrollHeight + 'px';
         } else {
             content.style.maxHeight = null;
+        }
+    });
+});
+
+// Pre-fill type when clicking "Cotizar Polo" from product cards
+document.querySelectorAll('.product-btn[data-polo]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const poloType = btn.dataset.polo;
+        const select = document.getElementById('tipo-polo');
+        if (select) {
+            select.value = poloType;
+            actualizarCalculadora();
         }
     });
 });
